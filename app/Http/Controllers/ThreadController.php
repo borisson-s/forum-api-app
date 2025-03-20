@@ -12,7 +12,8 @@ class ThreadController extends Controller
      */
     public function index()
     {
-        return Thread::all();
+        $threads = Thread::with('posts')->get();
+        return ['threads' => $threads];
     }
 
     /**
@@ -35,6 +36,7 @@ class ThreadController extends Controller
      */
     public function show(Thread $thread)
     {
+        $thread->load('posts');
         return [
             'thread' => $thread
         ];

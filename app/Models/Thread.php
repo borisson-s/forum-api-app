@@ -14,4 +14,7 @@ class Thread extends Model
         'title',
         'body',
     ];
+
+    public function posts() {
+        return $this->hasMany(Post::class);}
 }
