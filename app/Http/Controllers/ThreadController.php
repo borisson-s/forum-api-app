@@ -4,9 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Thread;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Gate;
 
-class ThreadController extends Controller
+class ThreadController extends Controller implements HasMiddleware
 {
+    public static function middleware()
+    {
+        return [
+            new Middleware('auth:sanctum', except: ['index', 'show'])
+        ];
+    }
     /**
      * Display a listing of the resource.
      */
@@ -26,7 +35,7 @@ class ThreadController extends Controller
             'body' => 'required',
         ]);
 
-        $thread = Thread::create($fields);
+        $thread = $request->user()->threads()->create($fields);
 
         return ['thread' => $thread, 'message' => 'Thread created successfully.'];
     }
@@ -47,6 +56,8 @@ class ThreadController extends Controller
      */
     public function update(Request $request, Thread $thread)
     {
+        Gate::authorize('modify', $thread);
+
         $fields = $request->validate([
             'title' => 'required|string|max:255',
             'body' => 'required',
@@ -62,6 +73,8 @@ class ThreadController extends Controller
      */
     public function destroy(Thread $thread)
     {
+        Gate::authorize('modify', $thread);
+
         $thread->delete();
 
         return ['message' => 'Thread deleted successfully.'];
